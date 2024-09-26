@@ -68,7 +68,8 @@ export function SidebarDashboard(dashboard: any) {
                 href: "#",
                 icon: (
                   <Image
-                    src={dashboard.picture}
+                    src="https://assets.aceternity.com/manu.png"
+
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}

@@ -3,21 +3,22 @@ import { TypewriterEffectSmooth } from "./ui/typewriter-effect";
 export function Title() {
   const words = [
     {
-      text: "Build",
-      className: "text-red-200 dark:text-blue-500",
+      text: "Bienvenue",
+      // className: "text-red-200 dark:text-blue-500",
     },
     {
-      text: "awesome",
+      text: "sur",
     },
     {
-      text: "apps",
+      text: "Gloom ! -",
+      className: "text-lime-600 dark:text-blue-500",
     },
+    // {
+    //   text: "with",
+    // },
     {
-      text: "with",
-    },
-    {
-      text: "Aceternity.",
-      className: "text-amber-900 dark:text-blue-500",
+      text: "Achetez, vendez, jouez.",
+      className: "text-lime-700 dark:text-blue-500",
     },
   ];
   return (
@@ -28,10 +29,10 @@ export function Title() {
       <TypewriterEffectSmooth words={words} />
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4">
         <button className="w-40 h-10 rounded-xl bg-black border dark:border-white border-transparent text-white text-sm">
-          Join now
+          S'inscrire
         </button>
         <button className="w-40 h-10 rounded-xl bg-white text-black border border-black  text-sm">
-          Signup
+          Se connecter
         </button>
       </div>
     </div>

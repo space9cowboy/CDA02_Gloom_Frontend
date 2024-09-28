@@ -1,7 +1,5 @@
 const baseRoute = 'http://localhost:8000/api'
 
-
-
 export const AUTH_ROUTES ={
    SIGNUP:`${baseRoute}/auth/signup`,
    LOGIN:`${baseRoute}/auth/login`

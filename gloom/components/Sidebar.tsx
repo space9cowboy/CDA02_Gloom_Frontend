@@ -11,6 +11,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import PictureProfile from "@/assets/donkey.png";
 
 export function SidebarDashboard(dashboard: any) {
   const links = [
@@ -68,8 +69,7 @@ export function SidebarDashboard(dashboard: any) {
                 href: "#",
                 icon: (
                   <Image
-                    src="https://assets.aceternity.com/manu.png"
-
+                    src={PictureProfile} 
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}

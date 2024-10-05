@@ -150,7 +150,7 @@ ListItem.displayName = "ListItem"
 
 export function Category() {
     return (
-      <div className="w-full h-16 flex items-center justify-between px-4 bg-black">
+      <div className="w-full h-16 flex items-center justify-center px-4 bg-black">
        
         <Navbar />
         

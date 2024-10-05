@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Label } from "./ui/label";
-import { Input } from "./ui/input";
+import { InputAceternity } from "./ui/input-aceternity";
 import { cn } from "@/lib/utils";
 import {
   IconBrandGithub,
@@ -28,24 +28,24 @@ export function SignupForm() {
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
             <Label htmlFor="firstname">First name</Label>
-            <Input id="firstname" placeholder="Tyler" type="text" />
+            <InputAceternity id="firstname" placeholder="Tyler" type="text" />
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">Last name</Label>
-            <Input id="lastname" placeholder="Durden" type="text" />
+            <InputAceternity id="lastname" placeholder="Durden" type="text" />
           </LabelInputContainer>
         </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          <InputAceternity id="email" placeholder="projectmayhem@fc.com" type="email" />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
+          <InputAceternity id="password" placeholder="••••••••" type="password" />
         </LabelInputContainer>
         <LabelInputContainer className="mb-8">
           <Label htmlFor="twitterpassword">Your twitter password</Label>
-          <Input
+          <InputAceternity
             id="twitterpassword"
             placeholder="••••••••"
             type="twitterpassword"

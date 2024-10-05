@@ -148,22 +148,12 @@ const ListItem = React.forwardRef<
 })
 ListItem.displayName = "ListItem"
 
-export function Header() {
+export function Category() {
     return (
-      <div className="w-full h-16 flex items-center justify-between px-4">
-       <h1>GLOOM</h1>
+      <div className="w-full h-16 flex items-center justify-between px-4 bg-black">
+       
         <Navbar />
-        <div className="flex w-full max-w-[35rem] items-center space-x-2">
-          <Input type="Search" placeholder="Search" className="rounded-3xl" />
-          <Button type="submit" className="flex items-center space-x-2 bg-[#012611] text-white rounded-lg">
-            <IconSearch size={20} />
-            {/* <span>Subscribe</span> */}
-          </Button>
-        </div>
-        <div className="flex gap-4">
-          <Button className="bg-[green] text-white rounded-2xl" type="submit">S'inscrire</Button>
-          <Button className="bg-black text-white rounded-2xl" type="submit">Ajouter une annonce</Button>
-        </div>
+        
       </div>
     );
   }

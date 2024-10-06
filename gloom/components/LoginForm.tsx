@@ -1,106 +1,91 @@
 "use client";
 import React, { useState } from "react";
-import { Label } from "./ui/label";
-import { InputAceternity } from "./ui/input-aceternity";
+import { Label } from "@/components/ui/label";
+import { InputAceternity } from "@/components/ui/input-aceternity";
 import { cn } from "@/lib/utils";
 import { BackgroundGradient } from "./ui/background-gradient";
 
-export function SignupForm() {
+export function LoginForm() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Réinitialiser les messages
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    // Créer le payload pour l'inscription
-    const payload = {
-      username,
-      email,
-      password,
-      type: "individual", // Si c'est un champ fixe
-    };
+    
+    setErrorMessage(""); // Réinitialiser le message d'erreur
 
     try {
-      // Faire la requête POST vers l'API d'inscription
-      const res = await fetch("http://localhost:3000/api/auth/signup", {
+      const res = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Erreur d'inscription");
+        throw new Error(errorData.message || "Erreur de connexion");
       }
 
       const data = await res.json();
-      setSuccessMessage("Inscription réussie !");
-      console.log("Réponse API : ", data);
+
+      // Stocker le token dans le sessionStorage ou les cookies
+      const token = data.data.token;
+       // Assurez-vous que l'API renvoie un token dans la réponse
+      sessionStorage.setItem("authToken", token); // Stocke le token dans le sessionStorage
+
+      // Rediriger l'utilisateur ou mettre à jour l'interface après une connexion réussie
+      console.log("Utilisateur connecté, token stocké:", token);
+      
+      // Si tu veux utiliser des cookies plutôt que sessionStorage:
+      // document.cookie = `authToken=${token}; path=/; secure; HttpOnly`;
+
     } catch (error: any) {
-      setErrorMessage(error.message || "Erreur lors de l'inscription");
+      setErrorMessage(error.message || "Erreur lors de la connexion");
     }
   };
 
   return (
     <div
-      className="relative w-full h-full min-h-screen flex justify-center items-center"
+      className="relative w-full h-full min-h-screen flex justify-center items-center "
       style={{
-        backgroundImage: `url("https://images.unsplash.com/photo-1543840950-e6529649ce74?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
+        backgroundImage: `url("https://images.unsplash.com/photo-1543840952-2aa90585c0a4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
       }}
     >
       <BackgroundGradient>
         <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
           <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-            Bienvenue sur Gloom 🎸
+            Connectez-vous à Gloom 🎸
           </h2>
           <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-            Si vous n'avez pas encore de compte, vous pouvez vous inscrire dans
-            le formulaire ci-dessous
+            Connectez-vous avec votre nom d'utilisateur et votre mot de passe.
           </p>
 
-          {/* Affichage des messages de succès ou d'erreur */}
+          {/* Affichage du message d'erreur */}
           {errorMessage && (
             <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
           )}
-          {successMessage && (
-            <p className="text-green-500 text-sm mt-2">{successMessage}</p>
-          )}
 
           <form className="my-8" onSubmit={handleSubmit}>
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-              <LabelInputContainer>
-                <Label htmlFor="username">Nom d'utilisateur</Label>
-                <InputAceternity
-                  id="username"
-                  placeholder="Tyler"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </LabelInputContainer>
-            </div>
+            {/* Username */}
             <LabelInputContainer className="mb-4">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Nom d'utilisateur</Label>
               <InputAceternity
-                id="email"
-                placeholder="projectmayhem@fc.com"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                placeholder="Nom d'utilisateur"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </LabelInputContainer>
-            <LabelInputContainer className="mb-4">
+            {/* Password */}
+            <LabelInputContainer className="mb-8">
               <Label htmlFor="password">Mot de passe</Label>
               <InputAceternity
                 id="password"
@@ -116,9 +101,11 @@ export function SignupForm() {
               className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
               type="submit"
             >
-              S'inscrire &rarr;
+              Se connecter &rarr;
               <BottomGradient />
             </button>
+
+            <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
           </form>
         </div>
       </BackgroundGradient>

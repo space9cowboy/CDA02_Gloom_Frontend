@@ -1,10 +1,14 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react";
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { IconSearch } from '@tabler/icons-react';
+// import jwt_decode from "jwt-decode";
+import { decodeJwt } from "jose"; // Importation de jose pour décoder le JWT
+import { useRouter } from "next/navigation"; // 
 
 import { cn } from "@/lib/utils"
 //import { Icons } from "@/components/icons"
@@ -17,6 +21,12 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+
+interface UserPayload {
+  username: string;
+  email: string;
+  // Ajoute d'autres propriétés si nécessaire
+}
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -55,6 +65,7 @@ const components: { title: string; href: string; description: string }[] = [
       "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
   },
 ]
+
 
 export function Navbar() {
   return (
@@ -149,6 +160,12 @@ const ListItem = React.forwardRef<
 ListItem.displayName = "ListItem"
 
 export function Header() {
+  const router = useRouter();
+
+  const handleRedirect = () => {
+    router.push("/auth/signup"); // Redirection vers /dashboard
+  };
+
     return (
       <div className="w-full h-16 flex items-center justify-between px-4">
        <h1>GLOOM</h1>
@@ -161,8 +178,64 @@ export function Header() {
           </Button>
         </div>
         <div className="flex gap-4">
-          <Button className="bg-[green] text-white rounded-2xl" type="submit">S'inscrire</Button>
-          <Button className="bg-black text-white rounded-2xl" type="submit">Ajouter une annonce</Button>
+          <Button className="bg-[green] text-white rounded-2xl" type="button" onClick={handleRedirect}>S'inscrire</Button>
+          <Button className="bg-black text-white rounded-2xl" type="button">Ajouter une annonce</Button>
+        </div>
+      </div>
+    );
+  }
+  export function HeaderLog() {
+    const [userInfo, setUserInfo] = useState<UserPayload | null>(null);
+    const router = useRouter(); // Initialiser le router pour gérer les redirections
+  
+    useEffect(() => {
+      // Récupérer le token depuis le sessionStorage
+      const token = sessionStorage.getItem("authToken");
+  
+      if (token) {
+        try {
+          // Décoder le token pour extraire les informations
+          const decoded = decodeJwt(token); // Utilise decodeJwt pour décoder le JWT
+  
+          // Le JWT décodé contient les informations dans son payload
+          const userPayload: UserPayload = {
+            username: decoded.username as string,
+            email: decoded.email as string,
+          };
+  
+          setUserInfo(userPayload); // Mettre les infos utilisateur dans l'état
+        } catch (error) {
+          console.error("Erreur lors du décodage du token:", error);
+        }
+      }
+    }, []);
+  
+    // Fonction pour rediriger vers /dashboard
+    const handleRedirect = () => {
+      router.push("/dashboard"); // Redirection vers /dashboard
+    };
+  
+    return (
+      <div className="w-full h-16 flex items-center justify-between px-4">
+        <h1>GLOOM</h1>
+        <Navbar />
+        <div className="flex w-full max-w-[35rem] items-center space-x-2">
+          <Input type="Search" placeholder="Search" className="rounded-3xl" />
+          <Button type="submit" className="flex items-center space-x-2 bg-[#012611] text-white rounded-lg">
+            <IconSearch size={20} />
+          </Button>
+        </div>
+        <div className="flex gap-4">
+          <Button className="bg-black text-white rounded-2xl" type="submit">
+            Ajouter une annonce
+          </Button>
+          <Button
+            className="bg-[green] text-white rounded-2xl"
+            type="button"
+            onClick={handleRedirect} // Ajouter l'événement onClick pour la redirection
+          >
+            {userInfo ? userInfo.username : "Chargement..."}
+          </Button>
         </div>
       </div>
     );

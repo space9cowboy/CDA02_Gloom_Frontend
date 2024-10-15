@@ -4,11 +4,14 @@ import { Label } from "@/components/ui/label";
 import { InputAceternity } from "@/components/ui/input-aceternity";
 import { cn } from "@/lib/utils";
 import { BackgroundGradient } from "./ui/background-gradient";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const router = useRouter();
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,6 +44,8 @@ export function LoginForm() {
 
       // Rediriger l'utilisateur ou mettre à jour l'interface après une connexion réussie
       console.log("Utilisateur connecté, token stocké:", token);
+
+      router.push("/dashboard"); // Redirection
       
       // Si tu veux utiliser des cookies plutôt que sessionStorage:
       // document.cookie = `authToken=${token}; path=/; secure; HttpOnly`;

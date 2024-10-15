@@ -4,6 +4,7 @@ import { Label } from "./ui/label";
 import { InputAceternity } from "./ui/input-aceternity";
 import { cn } from "@/lib/utils";
 import { BackgroundGradient } from "./ui/background-gradient";
+import { useRouter } from "next/navigation";
 
 export function SignupForm() {
   const [username, setUsername] = useState("");
@@ -11,6 +12,7 @@ export function SignupForm() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,6 +46,9 @@ export function SignupForm() {
 
       const data = await res.json();
       setSuccessMessage("Inscription réussie !");
+
+      router.push("/auth/login"); // Redirection
+
       console.log("Réponse API : ", data);
     } catch (error: any) {
       setErrorMessage(error.message || "Erreur lors de l'inscription");

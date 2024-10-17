@@ -9,7 +9,7 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
   useEffect(() => {
     const fetchInstrument = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/instruments/${params.instrumentId}`, {
+        const res = await fetch(`/api/instruments/${params.instrumentId}`, {
           headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -22,6 +22,7 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
         }
 
         const data = await res.json();
+        console.log(data);
         setInstrument(data);
         setLoading(false);
       } catch (error) {

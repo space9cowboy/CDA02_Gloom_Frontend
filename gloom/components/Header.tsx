@@ -167,7 +167,7 @@ export function Header() {
   };
 
     return (
-      <div className="w-full h-16 flex items-center justify-between px-4">
+      <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
        <h1>GLOOM</h1>
         <Navbar />
         <div className="flex w-full max-w-[35rem] items-center space-x-2">
@@ -216,7 +216,7 @@ export function Header() {
     };
   
     return (
-      <div className="w-full h-16 flex items-center justify-between px-4">
+      <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
         <h1>GLOOM</h1>
         <Navbar />
         <div className="flex w-full max-w-[35rem] items-center space-x-2">

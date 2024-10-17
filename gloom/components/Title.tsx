@@ -53,11 +53,11 @@ export function Title() {
       className: "text-neutral-50 dark:text-neutral-50",
     },
     {
-      text: "Gloom ! -",
+      text: "Gloom 𝄞 -",
       className: "text-lime-600 dark:text-blue-500",
     },
     {
-      text: "Achetez, vendez, jouez.",
+      text: "Achetez, vendez, jouez. 💵🎸🎹🎺",
       className: "text-lime-700 dark:text-blue-500",
     },
   ];
@@ -73,7 +73,7 @@ export function Title() {
     <div className="relative w-full h-[60vh]">
       {/* Image de fond */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center "
         style={{ backgroundImage: `url(${backgroundImage})` }}
       ></div>
 
@@ -81,7 +81,7 @@ export function Title() {
       <div className="absolute inset-0 bg-black opacity-70"></div>
 
       {/* Contenu */}
-      <div className="relative flex flex-col items-center justify-center h-full z-10">
+      <div className="relative flex flex-col items-center justify-center h-full z-10 ">
         <p className="text-neutral-600 dark:text-neutral-200 text-xs sm:text-base">
           The road to freedom starts from here
         </p>

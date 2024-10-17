@@ -4,11 +4,20 @@ import Link, { LinkProps } from "next/link";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconMenu2, IconX } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 interface Links {
   label: string;
-  href: string;
+  href?: string | null;
   icon: React.JSX.Element | React.ReactNode;
+  onClick?: () => void;
+}
+
+interface ButtonProps {
+  label: string;
+  onClick: ()=> void;
+  icon: React.JSX.Element | React.ReactNode;
+  className?: string;
 }
 
 interface SidebarContextProps {
@@ -165,9 +174,19 @@ export const SidebarLink = ({
   props?: LinkProps;
 }) => {
   const { open, animate } = useSidebar();
+  const href = link.href || "#";
+  const router = useRouter();
+
+const handleClick = (e: React.MouseEvent) => {
+    if (link.onClick) {
+      e.preventDefault(); // Empêche la redirection immédiate
+      link.onClick(); // Exécute la fonction personnalisée (ex. déconnexion)
+    }
+  };
+
   return (
     <Link
-      href={link.href}
+      href={href}
       className={cn(
         "flex items-center justify-start gap-2  group/sidebar py-2",
         className
@@ -186,5 +205,37 @@ export const SidebarLink = ({
         {link.label}
       </motion.span>
     </Link>
+  );
+};
+
+export const SidebarButton = ({
+  label,
+  onClick,
+  icon,
+  className,
+}: ButtonProps) => {
+  const { open, animate } = useSidebar(); // Récupère l'état "ouvert" de la sidebar
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer",
+        className
+      )}
+    >
+      {icon}
+
+      {/* Animation pour afficher ou cacher le label en fonction de l'état de la sidebar */}
+      <motion.span
+        animate={{
+          display: animate ? (open ? "inline-block" : "none") : "inline-block",
+          opacity: animate ? (open ? 1 : 0) : 1,
+        }}
+        className="text-red-500 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+      >
+        {label}
+      </motion.span>
+    </button>
   );
 };

@@ -27,7 +27,7 @@ export default function Instruments() {
   useEffect(() => {
     const fetchInstruments = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/instruments');
+        const res = await fetch('/api/instruments');
         const data = await res.json();
         setInstruments(data.data);
         setLoading(false);

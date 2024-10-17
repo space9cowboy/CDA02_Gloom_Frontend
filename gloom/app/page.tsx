@@ -22,10 +22,10 @@ export default function Home() {
     <div className="flex flex-col min-h-screen font-sans">
       {/* Utilise HeaderLog si l'utilisateur est authentifié, sinon Header */}
       {isAuthenticated ? <HeaderLog /> : <Header />}
-      <Category />
+      
       <Title />
-      <ListCardsRecent />
       <Carrousel />
+      <ListCardsRecent />
       <ListCardsGuitar />
       <ListCardsPiano />
       <Footer />

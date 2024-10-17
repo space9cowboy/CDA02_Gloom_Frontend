@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
+import { Sidebar, SidebarBody, SidebarLink, SidebarButton } from "./ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
   IconSettings,
+  IconLogout,
   IconUserBolt,
 } from "@tabler/icons-react";
 import Link from "next/link";
@@ -12,19 +13,21 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import PictureProfile from "@/assets/donkey.png";
-
+import { useRouter } from "next/navigation"
+ 
 export function SidebarDashboard(dashboard: any) {
+  
   const links = [
     {
       label: "Dashboard",
-      href: "#",
+      href: "/",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Profile",
-      href: "#",
+      href: "/",
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -36,15 +39,14 @@ export function SidebarDashboard(dashboard: any) {
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
+    
   ];
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const handleLogout = () => {
+    sessionStorage.removeItem("authToken");
+    router.push("/auth/login");
+  };
   return (
     <div
       className={cn(
@@ -63,6 +65,15 @@ export function SidebarDashboard(dashboard: any) {
             </div>
           </div>
           <div>
+            <div className="pb-5">
+          <SidebarButton 
+            label="Se déconnecter"
+            onClick={handleLogout}
+            icon={<IconLogout className="text-red-500 h-5 w-5 flex-shrink-0" />}
+            className="text-red-500 hover:text-red-600"
+          />
+          </div>
+            
             <SidebarLink
               link={{
                 label: "Manu Arora",
@@ -78,8 +89,10 @@ export function SidebarDashboard(dashboard: any) {
                 ),
               }}
             />
+           
           </div>
         </SidebarBody>
+        
       </Sidebar>
       <Dashboard />
     </div>
@@ -115,6 +128,8 @@ export const LogoIcon = () => {
 
 // Dummy dashboard component with content
 const Dashboard = () => {
+  
+
   return (
     <div className="flex flex-1">
       <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
@@ -134,7 +149,8 @@ const Dashboard = () => {
             ></div>
           ))}
         </div>
+        
+        </div>
       </div>
-    </div>
   );
 };

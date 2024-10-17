@@ -9,6 +9,12 @@ export const INSTRUMENTS_ROUTES = {
    POST_INSTRUMENT:`${baseRoute}/instruments`,
    GET_ALL_INSTRUMENT:`${baseRoute}/instruments`,
 };
+export const CATEGORY_ROUTES = {
+   POST_CATEGORY:`${baseRoute}/categories`,
+   GET_ALL_CATEGORY:`${baseRoute}/categories`,
+
+   GET_CATEGORY_BY_PARENT:`${baseRoute}/categories/parent`,
+};
 
 export const GET_INSTRUMENT_BY_ID = (id: number) => `${baseRoute}/instruments/`+ id;
 export const PUT_INSTRUMENT_BY_ID = (id: number) => `${baseRoute}/instruments/`+ id;

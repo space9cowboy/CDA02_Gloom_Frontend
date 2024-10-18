@@ -10,6 +10,7 @@ export const INSTRUMENTS_ROUTES = {
    GET_ALL_INSTRUMENT:`${baseRoute}/instruments`,
    GET_INSTRUMENT_BY_CATEGORY:`${baseRoute}/instruments/category`,
 };
+
 export const CATEGORY_ROUTES = {
    POST_CATEGORY:`${baseRoute}/categories`,
    GET_ALL_CATEGORY:`${baseRoute}/categories`,
@@ -23,6 +24,7 @@ export const DELETE_INSTRUMENT_BY_ID = (id: number) => `${baseRoute}/instruments
 
 export const USERS_ROUTES = {
     GET_USERS:`${baseRoute}/user`,
+    GET_PROFILE: `${baseRoute}/user/username`,
 };
 
 export const GET_USER_BY_ID = (id: number) => `${baseRoute}/user/`+ id;

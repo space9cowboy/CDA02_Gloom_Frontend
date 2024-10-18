@@ -9,6 +9,7 @@ import { IconSearch } from '@tabler/icons-react';
 // import jwt_decode from "jwt-decode";
 import { decodeJwt } from "jose"; // Importation de jose pour décoder le JWT
 import { useRouter } from "next/navigation"; // 
+import axios from "axios";
 
 import { cn } from "@/lib/utils"
 //import { Icons } from "@/components/icons"
@@ -30,39 +31,39 @@ interface UserPayload {
 
 const components: { title: string; href: string; description: string }[] = [
   {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
+    title: "Batteries",
+    href: "/instrument/category/batteries",
     description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+      "Découvrez notre sélection de batteries",
   },
   {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
+    title: "Accessoires",
+    href: "/instrument/category/accessoires",
     description:
-      "For sighted users to preview content available behind a link.",
+      "Découvrez notre sélection d'accessoires pour vos instruments et plus",
   },
   {
-    title: "Progress",
-    href: "/docs/primitives/progress",
+    title: "Instruments à vent",
+    href: "/instrument/category/instrument a vent",
     description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+      "Découvrez notre sélection d'instruments à vents",
   },
   {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
+    title: "Claviers",
+    href: "/instrument/category/clavier",
+    description: "Découvrez notre sélection de synthétiseur et de piano",
   },
   {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
+    title: "Guitares",
+    href: "/instrument/category/guitare",
     description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
+      "Découvrez notre sélection de guitares acoustiques et éléctriques",
   },
   {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
+    title: "Basses",
+    href: "/instrument/category/basse",
     description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+      "Découvrez notre sélection de basses",
   },
 ]
 
@@ -72,41 +73,39 @@ export function Navbar() {
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Nouveautés</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
                 <NavigationMenuLink asChild>
                   <a
-                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                    href="/"
+                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-cover bg-center p-6 no-underline outline-none focus:shadow-md bg-[url('https://images.unsplash.com/photo-1541667558913-5510fb3c7bd9?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')]"
+                    href="#vinyl"
                   >
                     {/* <Icons.logo className="h-6 w-6" /> */}
-                    <div className="mb-2 mt-4 text-lg font-medium">
-                      shadcn/ui
+                    <div className="mb-2 mt-4 text-lg font-medium text-white">
+                      Vinyles
                     </div>
-                    <p className="text-sm leading-tight text-muted-foreground">
-                      Beautifully designed components that you can copy and
-                      paste into your apps. Accessible. Customizable. Open
-                      Source.
+                    <p className="text-sm leading-tight text-white">
+                    Découvrez notre sélection de vynils de différentes époques
                     </p>
                   </a>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
+              <ListItem href="#basse" title="Basses">
+                  Découvrez notre sélection de basses
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
+              <ListItem href="#instrument-a-vent" title="Instruments à vent">
+                  Découvrez notre sélection d'instruments à vent
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
+              <ListItem href="#guitare" title="Guitares">
+                  Découvrez notre sélection de guitares
               </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Catégories</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {components.map((component) => (
@@ -122,9 +121,9 @@ export function Navbar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/docs" legacyBehavior passHref>
+          <Link href="/instrument/category/accessoires" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Documentation
+              Accessoires
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
@@ -162,28 +161,101 @@ ListItem.displayName = "ListItem"
 export function Header() {
   const router = useRouter();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [instruments, setInstruments] = useState<any[]>([]); // Stocker tous les instruments
+  const [filteredInstruments, setFilteredInstruments] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    axios
+      .get("/api/instruments")
+      .then((response) => {
+        if (Array.isArray(response.data.data)) {
+          setInstruments(response.data.data); // Stocker les instruments à partir de response.data.data
+        } else {
+          console.error("Les données reçues ne sont pas un tableau d'instruments.");
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors du chargement des instruments :", error);
+      });
+  }, []);
+  
+
+  useEffect(() => {
+    if (searchTerm.length > 0 && Array.isArray(instruments)) {
+      const filteredResults = instruments.filter((instrument) =>
+        instrument.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredInstruments(filteredResults);
+      setShowDropdown(true);
+    } else {
+      setFilteredInstruments([]);
+      setShowDropdown(false);
+    }
+  }, [searchTerm, instruments]);
+  
+
+
+  // Fonction pour gérer la redirection vers la page d'un instrument
+  const handleRedirectInstrument = (instrumentId: number) => {
+    router.push(`/instrument/${instrumentId}`);
+    setShowDropdown(false); // Masquer la liste déroulante après la sélection
+  };
+
   const handleRedirect = () => {
     router.push("/auth/signup"); // Redirection vers /dashboard
   };
 
-    return (
-      <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
-       <h1>GLOOM</h1>
-        <Navbar />
-        <div className="flex w-full max-w-[35rem] items-center space-x-2">
-          <Input type="Search" placeholder="Search" className="rounded-3xl" />
-          <Button type="submit" className="flex items-center space-x-2 bg-[#012611] text-white rounded-lg">
-            <IconSearch size={20} />
-            {/* <span>Subscribe</span> */}
-          </Button>
-        </div>
-        <div className="flex gap-4">
-          <Button className="bg-[green] text-white rounded-2xl" type="button" onClick={handleRedirect}>S'inscrire</Button>
-          <Button className="bg-black text-white rounded-2xl" type="button">Ajouter une annonce</Button>
-        </div>
+
+
+  return (
+    <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
+      <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-teal-300 via-green-700 to-neutral-700 bg-clip-text text-transparent font-special">
+          GLOOM
+        </Link>
+      <Navbar />
+      <div className="flex w-full max-w-[35rem] items-center space-x-2 relative">
+        {/* Barre de recherche */}
+        <Input
+          type="Search"
+          placeholder="Recherche..."
+          className="rounded-3xl"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Button type="submit" className="flex items-center space-x-2 bg-[#012611] text-white rounded-lg">
+          <IconSearch size={20} />
+        </Button>
+
+        {/* Liste déroulante pour afficher les résultats */}
+        {showDropdown && filteredInstruments.length > 0 && (
+          <div className="absolute top-12 w-full bg-white shadow-lg rounded-lg max-h-60 overflow-y-auto z-50">
+            {filteredInstruments.map((instrument) => (
+              <div
+                key={instrument.id}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleRedirectInstrument(instrument.id)}
+              >
+                <p className="text-sm font-semibold">{instrument.title}</p>
+                <p className="text-xs text-gray-500">{instrument.price} €</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    );
-  }
+      <div className="flex gap-4">
+        <Button className="bg-[green] text-white rounded-2xl" type="button" onClick={() => router.push("/auth/signup")}>
+          S'inscrire
+        </Button>
+        <Button className="bg-black text-white rounded-2xl" type="button" onClick={() => router.push("/auth/login")}>
+          Ajouter une annonce
+        </Button>
+      </div>
+    </div>
+  );
+}
+
   export function HeaderLog() {
     const [userInfo, setUserInfo] = useState<UserPayload | null>(null);
     const router = useRouter(); // Initialiser le router pour gérer les redirections
@@ -209,32 +281,102 @@ export function Header() {
         }
       }
     }, []);
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [instruments, setInstruments] = useState<any[]>([]); // Stocker tous les instruments
+    const [filteredInstruments, setFilteredInstruments] = useState<any[]>([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+  
+    useEffect(() => {
+      axios
+        .get("/api/instruments")
+        .then((response) => {
+          if (Array.isArray(response.data.data)) {
+            setInstruments(response.data.data); // Stocker les instruments à partir de response.data.data
+          } else {
+            console.error("Les données reçues ne sont pas un tableau d'instruments.");
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur lors du chargement des instruments :", error);
+        });
+    }, []);
+    
+    
+    useEffect(() => {
+      if (searchTerm.length > 0 && Array.isArray(instruments)) {
+        const filteredResults = instruments.filter((instrument) =>
+          instrument.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredInstruments(filteredResults);
+        setShowDropdown(true);
+  
+      } else {
+        setFilteredInstruments([]);
+        setShowDropdown(false);
+      }
+    }, [searchTerm, instruments]);
+    
+  
+  // Fonction pour gérer la redirection vers la page d'un instrument
+  const handleRedirectInstrument = (instrumentId: number) => {
+    router.push(`/instrument/${instrumentId}`);
+    setShowDropdown(false); // Masquer la liste déroulante après la sélection
+  };
+
   
     // Fonction pour rediriger vers /dashboard
     const handleRedirect = () => {
       router.push("/dashboard"); // Redirection vers /dashboard
     };
-  
+
     return (
       <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
-        <h1>GLOOM</h1>
+        <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-green-500 to-green-700 bg-clip-text text-transparent font-special">
+          GLOOM
+        </Link>
         <Navbar />
         <div className="flex w-full max-w-[35rem] items-center space-x-2">
-          <Input type="Search" placeholder="Search" className="rounded-3xl" />
-          <Button type="submit" className="flex items-center space-x-2 bg-[#012611] text-white rounded-lg">
-            <IconSearch size={20} />
-          </Button>
+        <div className="flex w-full max-w-[35rem] items-center space-x-2 relative">
+        {/* Barre de recherche */}
+        <Input
+          type="Search"
+          placeholder="Search"
+          className="rounded-3xl"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Button type="submit" className="flex items-center space-x-2 bg-[#012611] text-white rounded-lg">
+          <IconSearch size={20} />
+        </Button>
+
+        {/* Liste déroulante pour afficher les résultats */}
+        {showDropdown && filteredInstruments.length > 0 && (
+          <div className="absolute top-12 w-full bg-white shadow-lg rounded-lg max-h-60 overflow-y-auto z-50">
+            {filteredInstruments.map((instrument) => (
+              <div
+                key={instrument.id}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleRedirectInstrument(instrument.id)}
+              >
+                <p className="text-sm font-semibold">{instrument.title}</p>
+                <p className="text-xs text-gray-500">{instrument.price} €</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
         </div>
         <div className="flex gap-4">
-          <Button className="bg-black text-white rounded-2xl" type="submit">
+          <Button className="bg-black text-white rounded-2xl"  type="button" onClick={() => router.push("/dashboard/create-annonce")}>
             Ajouter une annonce
           </Button>
           <Button
-            className="bg-[green] text-white rounded-2xl"
+            className="text-green-800 bg-white rounded-2xl hover:bg-green-800 hover:rounded-2xl hover:text-white"
             type="button"
             onClick={handleRedirect} // Ajouter l'événement onClick pour la redirection
           >
-            {userInfo ? userInfo.username : "Chargement..."}
+            {userInfo ? "Bonjour, " + userInfo.username : "Chargement..."}
           </Button>
         </div>
       </div>

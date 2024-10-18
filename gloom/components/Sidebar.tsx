@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, SidebarBody, SidebarLink, SidebarButton } from "./ui/sidebar";
 import {
   IconArrowLeft,
@@ -8,45 +8,111 @@ import {
   IconLogout,
   IconUserBolt,
 } from "@tabler/icons-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
-import PictureProfile from "@/assets/donkey.png";
 import { useRouter } from "next/navigation"
+import { decodeJwt } from "jose"; // Importation de jose pour décoder le JWT
+
+interface UserPayload {
+  username: string;
+}
  
-export function SidebarDashboard(dashboard: any) {
+export function SidebarDashboard(dashboard: any, { params }: { params: { username: string } }) {
   
   const links = [
     {
       label: "Dashboard",
-      href: "/",
+      href: "dashboard",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Profile",
-      href: "/",
+      href: "profile",
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Settings",
-      href: "#",
+      href: "settings",
       icon: (
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
-    
   ];
+
   const [open, setOpen] = useState(false);
-  const router = useRouter();
+  
   const handleLogout = () => {
     sessionStorage.removeItem("authToken");
     router.push("/auth/login");
   };
+
+  const [userInfo, setUserInfo] = useState<UserPayload | null>();
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<string>("dashboard"); // État pour la page actuelle
+  
+  const router = useRouter(); // Initialiser le router pour gérer les redirections
+
+  useEffect(() => {
+    // Récupérer le token depuis le sessionStorage
+    const token = sessionStorage.getItem("authToken");
+
+    if (token) {
+      try {
+        // Décoder le token pour extraire les informations
+        const decoded = decodeJwt(token); // Utilise decodeJwt pour décoder le JWT
+
+        // Le JWT décodé contient les informations dans son payload
+        const userPayload: UserPayload = {
+          username: decoded.username as string,
+        };
+
+        setUserInfo(userPayload); // Mettre les infos utilisateur dans l'état
+        
+      } catch (error) {
+        console.error("Erreur lors du décodage du token:", error);
+      }
+
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch(`/api/user/${userInfo?.username}`, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Error fetching instrument with id ${params.username}`);
+        }
+
+        const data = await res.json();
+        console.log(data);
+        setUserProfile(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching instrument data:", error);
+        setError("Error fetching instrument data");
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [userInfo?.username]);
+
+  const handlePageChange = (page: string) => {
+    setCurrentPage(page); // Mettre à jour la page actuelle
+  };
+
   return (
     <div
       className={cn(
@@ -57,7 +123,7 @@ export function SidebarDashboard(dashboard: any) {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            {open ? <Logo /> : <LogoIcon />}
+            
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
@@ -74,57 +140,39 @@ export function SidebarDashboard(dashboard: any) {
           />
           </div>
             
-            <SidebarLink
-              link={{
-                label: "Manu Arora",
-                href: "#",
-                icon: (
-                  <Image
-                    src={PictureProfile} 
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
+          { userProfile && (
+              <SidebarLink
+                link={{
+                  label: userProfile.username,
+                  href: "#",
+                  icon: (
+                    <img
+                      src={userProfile.image}
+                      className="h-7 w-7 flex-shrink-0 rounded-full"
+                      width={50}
+                      height={50}
+                      alt="Avatar"
+                    />
+                  ),
+                }}
+              />
+              
+              
+            )}
            
           </div>
         </SidebarBody>
         
       </Sidebar>
-      <Dashboard />
+      {/* Afficher le composant en fonction de la page sélectionnée */}
+      <div className="flex flex-1">
+        {currentPage === "dashboard" && <Dashboard />}
+        {currentPage === "profile" && <DashboardProfile />}
+        {currentPage === "settings" && <Settings />}
+      </div>
     </div>
   );
 }
-export const Logo = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium text-black dark:text-white whitespace-pre"
-      >
-        Acet Labs
-      </motion.span>
-    </Link>
-  );
-};
-export const LogoIcon = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-    </Link>
-  );
-};
 
 // Dummy dashboard component with content
 const Dashboard = () => {
@@ -152,5 +200,47 @@ const Dashboard = () => {
         
         </div>
       </div>
+  );
+};
+
+const DashboardProfile = () => {
+  
+
+  return (
+    <div className="flex flex-1">
+      <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+        <div className="flex gap-2">
+          {[...new Array(4)].map((i) => (
+            <div
+              key={"first-array" + i}
+              className="h-20 w-full rounded-lg  bg-gray-100 dark:bg-neutral-800 animate-pulse"
+            ></div>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-1">
+          {[...new Array(2)].map((i) => (
+            <div
+              key={"second-array" + i}
+              className="h-full w-full rounded-lg  bg-gray-100 dark:bg-neutral-800 animate-pulse"
+            ></div>
+          ))}
+        </div>
+        <div>profile</div>
+        
+        </div>
+      </div>
+  );
+};
+
+const Settings = () => {
+  return (
+    <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+      <div className="flex gap-2">
+        {[...new Array(4)].map((_, i) => (
+          <div key={i} className="h-20 w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"></div>
+        ))}
+      </div>
+      <div>Settings Content</div>
+    </div>
   );
 };

@@ -1,16 +1,27 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import { useRouter } from "next/navigation";
 import { Carousel, Card } from "@/components/ui/apple-cards-carousel";
 
 export function Carrousel() {
+  const router = useRouter(); // Initialiser le router pour gérer les redirections
+
+  // Fonction qui redirige vers une page spécifique selon la catégorie
+  const redirectionCategory = (category: string) => {
+    router.push(`/instrument/category/${category}`); // Utilisation du nom de la catégorie dans l'URL
+  };
+
   const cards = data.map((card, index) => (
-    <Card key={card.src} card={card} index={index} />
+    <Card
+      key={card.src}
+      card={card}
+      index={index}
+      onClick={() => redirectionCategory(card.category)} // Redirection lors du clic
+    />
   ));
 
   return (
     <div className="w-full h-full pb-5 bg-black">
-   
       <Carousel items={cards} />
     </div>
   );
@@ -50,40 +61,39 @@ const DummyContent = () => {
 
 const data = [
   {
-    category: "Artificial Intelligence",
-    title: "Instruments à cordes",
-    src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: "Guitare",
+    title: "Guitares",
+    src: "https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: <DummyContent />,
   },
   {
-    category: "Productivity",
+    category: "Clavier",
     title: "Claviers",
-    src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    src: "https://images.unsplash.com/photo-1524578471438-cdd96d68d82c?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: <DummyContent />,
   },
   {
-    category: "Product",
-    title: "Batteries/Percussions",
-    src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: "Batteries",
+    title: "Batteries",
+    src: "https://images.unsplash.com/photo-1602939444907-6e688c594a66?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: <DummyContent />,
   },
-
   {
-    category: "Product",
+    category: "Instrument à vent",
     title: "Instruments à vent",
-    src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    src: "https://images.unsplash.com/photo-1698912237019-3a2b25399dec?q=80&w=2980&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: <DummyContent />,
   },
   {
-    category: "iOS",
+    category: "Accessoires",
     title: "Accessoires",
-    src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    src: "https://images.unsplash.com/photo-1420161900862-9a86fa1f5c79?q=80&w=2969&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: <DummyContent />,
   },
   {
-    category: "Hiring",
-    title: "Vinyl",
-    src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: "Vinyls",
+    title: "Vinyls",
+    src: "https://images.unsplash.com/photo-1458560871784-56d23406c091?q=80&w=3174&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: <DummyContent />,
   },
 ];

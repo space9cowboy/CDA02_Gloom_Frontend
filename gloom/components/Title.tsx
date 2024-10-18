@@ -82,9 +82,6 @@ export function Title() {
 
       {/* Contenu */}
       <div className="relative flex flex-col items-center justify-center h-full z-10 ">
-        <p className="text-neutral-600 dark:text-neutral-200 text-xs sm:text-base">
-          The road to freedom starts from here
-        </p>
         <TypewriterEffectSmooth words={words} />
         {/* Afficher les boutons uniquement si l'utilisateur n'est pas authentifié */}
         {!isAuthenticated && (

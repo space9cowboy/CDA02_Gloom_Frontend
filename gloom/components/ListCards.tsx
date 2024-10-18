@@ -56,7 +56,7 @@ export function ListCardsRecent() {
         À la une
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {sortedInstruments.slice(0, 8).map((instrument) => (
+        {sortedInstruments.slice(0, 4).map((instrument) => (
           <Card
             key={instrument.id}
             image={instrument.image}
@@ -93,13 +93,12 @@ export function ListCardsGuitar() {
           setLoading(false);
         }
       };
-  
       fetchInstruments();
     }, []);
   
     // Filtrer par catégorie 'guitare' et trier par date de mise à jour
     const filteredInstruments = instruments
-      .filter((instrument) => instrument.category.toLowerCase() === "guitare")
+      .filter((instrument) => instrument.category.toLowerCase() === "vinyl")
       .sort(
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
@@ -108,12 +107,12 @@ export function ListCardsGuitar() {
     if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
   
     return (
-      <div className="max-w-10xl  p-[4rem] bg-[#DCE4FD9] ">
+      <div id="vinyl" className="max-w-10xl  p-[4rem] bg-[#DCE4FD9] ">
        <h2 className="max-w-7xl pl-4  text-xl md:text-5xl font-bold text-neutral-800 dark:text-neutral-200 font-sans pb-8">
-        Guitares
+        Vinyls
       </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredInstruments.map((instrument) => (
+          {filteredInstruments.slice(0, 4).map((instrument) => (
             <Card
               key={instrument.id}
               image={instrument.image}
@@ -156,7 +155,7 @@ export function ListCardsGuitar() {
   
     // Filtrer par catégorie 'synthétiseur' et trier par date de mise à jour
     const filteredInstruments = instruments
-      .filter((instrument) => instrument.category.toLowerCase() === "synthétiseur")
+      .filter((instrument) => instrument.category.toLowerCase() === "claviers")
       .sort(
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
@@ -170,7 +169,7 @@ export function ListCardsGuitar() {
         Claviers
       </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredInstruments.map((instrument) => (
+          {filteredInstruments.slice(0, 4).map((instrument) => (
             <Card
               key={instrument.id}
               image={instrument.image}

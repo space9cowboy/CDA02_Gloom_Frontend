@@ -3,9 +3,11 @@ import { SidebarDashboard } from "@/components/Sidebar";
 import { Header, HeaderLog } from "@/components/Header";
 import { useEffect, useState } from "react";
 import {
-  IconUserCircle,
+  IconArrowLeft,
+  IconBrandTabler,
+  IconSettings,
   IconLogout,
-  IconUserBolt,
+  IconUserCircle,
   IconHome2,
   IconCirclePlus,
   IconMessage,
@@ -14,45 +16,40 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation"
 import { decodeJwt } from "jose"; 
 import { Sidebar, SidebarBody, SidebarLink, SidebarButton } from "@/components/ui/sidebar";
-import DashboardProfile from "./profile/page";
-import CreateAnnonce from "./create-annonce/page";
-
-
 
 interface UserPayload {
   username: string;
 }
  
-export default function Dashboard({ params }: { params: { username: string } }) {
+export default function DashboardMessage({ params }: { params: { username: string } }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const links = [
     {
       label: "Dashboard",
-      href: "#",
+      href: "./",
       icon: (
-        <IconHome2 className="text-green-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconHome2 className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Créer une annonce",
-      href: "dashboard/create-annonce",
+      href: "./create-annonce",
       icon: (
         <IconCirclePlus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Profile",
-      href: "dashboard/profile",
+      href: "./profile",
       icon: (
         <IconUserCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
-
     {
       label: "Messages",
-      href: "dashboard/message",
+      href: "#",
       icon: (
-        <IconMessage className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconMessage className="text-green-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     
@@ -194,7 +191,7 @@ export default function Dashboard({ params }: { params: { username: string } }) 
       </Sidebar>
       {/* Afficher le composant en fonction de la page sélectionnée */}
       <div className="flex flex-1">
-        <div>dashboard</div>
+        <div>Message</div>
       </div>
     </div>
       

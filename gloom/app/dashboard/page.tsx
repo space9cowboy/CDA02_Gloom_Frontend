@@ -18,7 +18,6 @@ import DashboardProfile from "./profile/page";
 import CreateAnnonce from "./create-annonce/page";
 
 
-
 interface UserPayload {
   username: string;
 }
@@ -67,6 +66,7 @@ export default function Dashboard({ params }: { params: { username: string } }) 
 
   const [userInfo, setUserInfo] = useState<UserPayload | null>();
   const [userProfile, setUserProfile] = useState<any>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<string>("dashboard"); // État pour la page actuelle
@@ -138,6 +138,8 @@ export default function Dashboard({ params }: { params: { username: string } }) 
     }
   }, []);
 
+
+
     return (
       <div className="flex flex-col items-center justify-center h-screen">
       {isAuthenticated ? <HeaderLog /> : <Header />}
@@ -195,6 +197,8 @@ export default function Dashboard({ params }: { params: { username: string } }) 
       {/* Afficher le composant en fonction de la page sélectionnée */}
       <div className="flex flex-1">
         <div>dashboard</div>
+        
+      
       </div>
     </div>
       

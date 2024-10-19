@@ -2,8 +2,10 @@
 import React from "react";
 import { BackgroundGradient } from "./ui/background-gradient";
 import { IconHeart } from '@tabler/icons-react';
+import Link from "next/link";
 
 interface CardProps {
+  id: number;
   image: string;
   title: string;
   description: string;
@@ -16,6 +18,7 @@ interface CardProps {
 }
 
 export function Card({
+  id,
   image,
   title,
   description,
@@ -64,9 +67,11 @@ export function Card({
         </div>
 
         {/* Bouton Voir le produit */}
-        <button className="px-4 py-2 text-white bg-[#012611] rounded-3xl hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700">
-          Voir le produit
-        </button>
+        <Link href={`/instrument/${id}`}>
+              <button className="px-4 py-2 text-white bg-[#012611] rounded-3xl hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700">
+                Voir le produit
+              </button>
+            </Link>
       </div>
     </div>
   </div>

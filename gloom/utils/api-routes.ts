@@ -9,7 +9,9 @@ export const INSTRUMENTS_ROUTES = {
    POST_INSTRUMENT:`${baseRoute}/instruments`,
    GET_ALL_INSTRUMENT:`${baseRoute}/instruments`,
    GET_INSTRUMENT_BY_CATEGORY:`${baseRoute}/instruments/category`,
+   GET_INSTRUMENT_BY_SELLER:`${baseRoute}/instruments/seller`,
 };
+ 
 
 export const CATEGORY_ROUTES = {
    POST_CATEGORY:`${baseRoute}/categories`,

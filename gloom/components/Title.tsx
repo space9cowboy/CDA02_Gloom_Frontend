@@ -57,7 +57,7 @@ export function Title() {
       className: "text-lime-600 dark:text-blue-500",
     },
     {
-      text: "Achetez, vendez, jouez. 💵🎸🎹🎺",
+      text: "Achetez 💵, vendez 🫱🏼‍🫲🏾, jouez. 🎸",
       className: "text-lime-700 dark:text-blue-500",
     },
   ];

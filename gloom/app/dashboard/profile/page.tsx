@@ -17,6 +17,21 @@ import { Sidebar, SidebarBody, SidebarLink, SidebarButton } from "@/components/u
 interface UserPayload {
   username: string;
 }
+
+interface UserProfile {
+  username: string;
+  email: string;
+  image: string;
+  reviewsReceived: Review[]; // Liste des reviews reçues
+}
+
+interface Review {
+  id: number;
+  comment: string;
+  rating: number;
+  reviewer: string; // Nom de l'utilisateur qui a donné l'avis
+}
+
  
 export default function DashboardProfile({ params }: { params: { username: string } }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,7 +78,12 @@ export default function DashboardProfile({ params }: { params: { username: strin
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<string>("dashboard"); // État pour la page actuelle
-  
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [newProfile, setNewProfile] = useState({
+    username: "",
+    email: "",
+    image: "",
+  });
   const router = useRouter(); // Initialiser le router pour gérer les redirections
 
   useEffect(() => {
@@ -105,8 +125,15 @@ export default function DashboardProfile({ params }: { params: { username: strin
         }
 
         const data = await res.json();
-        console.log(data);
-        setUserProfile(data);
+        console.log(data);setUserProfile({
+          ...data,
+          reviewsReceived: data.reviewsReceived || [], // Initialise reviewsReceived à un tableau vide s'il n'existe pas
+        });
+        setNewProfile({
+          username: data.username,
+          email: data.email,
+          image: data.image,
+        });
         setLoading(false);
       } catch (error) {
         console.error("Error fetching instrument data:", error);
@@ -123,6 +150,34 @@ export default function DashboardProfile({ params }: { params: { username: strin
   };
 
 
+  const handleSaveClick = async () => {
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProfile),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to update profile");
+      }
+      const updatedProfile = await res.json();
+      setUserProfile(updatedProfile);
+      setIsEditing(false);
+    } catch (error) {
+      setError("Failed to update profile");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewProfile({ ...newProfile, [e.target.name]: e.target.value });
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
   useEffect(() => {
     // Vérifier s'il y a un token dans le sessionStorage
     const token = sessionStorage.getItem("authToken");
@@ -130,6 +185,8 @@ export default function DashboardProfile({ params }: { params: { username: strin
       setIsAuthenticated(true); // L'utilisateur est authentifié
     }
   }, []);
+
+  console.log(userProfile)
 
     return (
       <div className="flex flex-col items-center justify-center h-screen">
@@ -186,8 +243,89 @@ export default function DashboardProfile({ params }: { params: { username: strin
         
       </Sidebar>
       {/* Afficher le composant en fonction de la page sélectionnée */}
-      <div className="flex flex-1">
-        <div>Dashboard Profile</div>
+      <div className="container mx-auto p-6 max-h-screen overflow-y-auto">
+        <h1 className="text-3xl font-bold mb-6">Mon profil</h1>
+        
+        {/* Profil utilisateur */}
+        <div className="bg-white shadow-lg p-6 rounded-lg">
+          {isEditing ? (
+            <div className="space-y-4">
+              <input
+                type="text"
+                name="username"
+                value={newProfile.username}
+                onChange={handleChange}
+                className="border border-gray-300 p-2 rounded w-full"
+                placeholder="Nom d'utilisateur"
+              />
+              <input
+                type="email"
+                name="email"
+                value={newProfile.email}
+                onChange={handleChange}
+                className="border border-gray-300 p-2 rounded w-full"
+                placeholder="Email"
+              />
+              <input
+                type="text"
+                name="image"
+                value={newProfile.image}
+                onChange={handleChange}
+                className="border border-gray-300 p-2 rounded w-full"
+                placeholder="URL de l'image"
+              />
+              <button
+                onClick={handleSaveClick}
+                className="bg-green-600 text-white px-4 py-2 rounded-md"
+              >
+                Sauvegarder
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center space-x-4">
+              <img
+                  src={userProfile?.image}
+                  alt="Avatar"
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+                <div>
+                  <h2 className="text-xl font-bold">{userProfile?.username}</h2>
+                  <p className="text-gray-500">{userProfile?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleEditClick}
+                className="mt-4 bg-gray-200 text-black px-4 py-2 rounded-md"
+              >
+                Modifier le profil
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Reviews reçues */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Mes avis reçus</h2>
+          {userProfile?.reviewsReceive.length > 0 ? (
+            <ul className="space-y-4">
+              {userProfile.reviewsReceive.map((review: any) => (
+                <li
+                  key={review.id}
+                  className="bg-white shadow p-4 rounded-lg flex justify-between"
+                >
+                  <div>
+                    <p className="text-gray-700 font-semibold">{review.comment}</p>
+                    <p className="text-gray-500 text-sm">De : {review.reviewer}</p>
+                  </div>
+                  <div className="text-yellow-500 font-bold">{review.rating} ★</div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Aucun avis reçu pour le moment.</p>
+          )}
+        </div>
       </div>
     </div>
       

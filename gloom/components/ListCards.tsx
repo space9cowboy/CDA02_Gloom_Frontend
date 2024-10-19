@@ -58,6 +58,7 @@ export function ListCardsRecent() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {sortedInstruments.slice(0, 4).map((instrument) => (
           <Card
+            id={instrument.id}
             key={instrument.id}
             image={instrument.image}
             title={instrument.title}
@@ -114,6 +115,7 @@ export function ListCardsGuitar() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredInstruments.slice(0, 4).map((instrument) => (
             <Card
+              id={instrument.id}
               key={instrument.id}
               image={instrument.image}
               title={instrument.title}
@@ -171,6 +173,7 @@ export function ListCardsGuitar() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredInstruments.slice(0, 4).map((instrument) => (
             <Card
+              id={instrument.id}
               key={instrument.id}
               image={instrument.image}
               title={instrument.title}

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { HeaderLog, Header } from '@/components/Header';
 import SidebarCategory from '@/components/SidebarCategory';
+import { InstrumentCard } from '@/components/InstrumentCard';
 
 export default function CategoryName({ params }: { params: { categoryName: string } }) {
     const [instruments, setInstruments] = useState<any[]>([]); // Initialiser comme un tableau vide
@@ -63,15 +64,8 @@ export default function CategoryName({ params }: { params: { categoryName: strin
         <div className="w-[100%] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
             {instruments.length > 0 ? (
             instruments.map((instrument: any) => (
-                <div key={instrument.id} className="bg-white shadow-md rounded-lg p-6">
-                <img 
-                    src={instrument.image} 
-                    alt={instrument.title} 
-                    className="w-full h-64 object-cover rounded-lg mb-4" 
-                />
-                <h1 className="text-2xl font-bold mb-2">{instrument.title}</h1>
-                <div className="text-lg font-semibold mb-4">Prix : {instrument.price} €</div>
-                </div>
+                <InstrumentCard key={instrument.id} instrument={instrument} />
+            
             ))
             ) : (
             <div className="text-center col-span-4">Aucun instrument trouvé pour cette catégorie</div>

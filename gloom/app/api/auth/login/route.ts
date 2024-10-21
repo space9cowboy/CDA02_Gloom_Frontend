@@ -1,7 +1,6 @@
-import { AUTH_ROUTES } from "@/utils/api-routes"
+import { AUTH_ROUTES } from "@/utils/api-routes";
+import { NextResponse } from "next/server";
 
-// Pour forcer la génération statique, si nécessaire
-export const dynamic = 'force-static'
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +11,7 @@ export async function POST(req: Request) {
     const { username, password } = body;
 
     if (!username || !password) {
-      return new Response(JSON.stringify({ message: "Nom d'utilisateur et mot de passe obligatoires." }), {
+      return new NextResponse(JSON.stringify({ message: "Nom d'utilisateur et mot de passe obligatoires." }), {
         status: 400,
       });
     }
@@ -22,9 +21,6 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
       body: JSON.stringify({
         username,
@@ -35,7 +31,7 @@ export async function POST(req: Request) {
     // Gérer les erreurs de la requête API
     if (!res.ok) {
       const errorData = await res.json();
-      return new Response(JSON.stringify({ message: "Erreur de connexion", error: errorData }), {
+      return new NextResponse(JSON.stringify({ message: "Erreur de connexion", error: errorData }), {
         status: res.status,
       });
     }
@@ -43,17 +39,37 @@ export async function POST(req: Request) {
     // Récupérer les données de la réponse
     const data = await res.json();
 
-    // Retourner les données dans la réponse
-    return new Response(JSON.stringify({ data }), {
+    // Extraire le token de la réponse (si c'est comme ça qu'il est renvoyé par l'API)
+    const token = data.token;
+
+    // Vérifier que le token existe
+    if (!token) {
+      return new NextResponse(JSON.stringify({ message: "Token manquant dans la réponse." }), {
+        status: 500,
+      });
+    }
+
+    // Mettre le token dans un cookie avec NextResponse
+    const response = new NextResponse(JSON.stringify({ message: "Connexion réussie", data }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
+    // Définir le cookie avec le token (expire dans 7 jours)
+    response.cookies.set('authToken', token, { 
+      httpOnly: true, // Cookie non accessible depuis le client JavaScript
+      secure: true,   // Assurer que le cookie n'est envoyé que sur HTTPS
+      path: '/',      // Cookie disponible sur tout le site
+      maxAge: 60 * 60 * 24 * 7, // Expire dans 7 jours
+    });
+
+    return response;
+
   } catch (error) {
     console.error("Erreur lors de la connexion:", error);
-    return new Response(JSON.stringify({ message: "Erreur interne du serveur" }), {
+    return new NextResponse(JSON.stringify({ message: "Erreur interne du serveur" }), {
       status: 500,
     });
   }

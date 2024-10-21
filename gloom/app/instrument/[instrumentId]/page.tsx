@@ -1,9 +1,133 @@
 "use client";
 import { useEffect, useState } from "react";
-// import { FaHeart, FaStar } from "react-icons/fa";
 import { Header, HeaderLog } from "@/components/Header";
 import { InstrumentCard } from "@/components/InstrumentCard";
 import Link from "next/link";
+import axios from "axios";
+import { useRouter } from 'next/navigation';
+
+// Modale de confirmation d'achat avec plus de détails
+const PurchaseModal = ({ instrument, onClose, onConfirm }: any) => {
+  const router = useRouter(); // Utiliser useRouter pour la redirection
+
+  // Calculer les montants HT, commission, et TTC
+  const commissionRate = 0.1; // Par exemple, 10% de commission
+  const montantHT = instrument.price / (1 + commissionRate); // Prix HT
+  const commissionGloom = instrument.price - montantHT; // Commission
+  const montantTTC = instrument.price; // Prix TTC (correspond au prix de l'instrument)
+  const handleConfirmPurchase = async () => {
+    try {
+      // Récupérer le token d'authentification depuis les cookies ou sessionStorage
+      const token = sessionStorage.getItem("authToken");
+
+      if (!token) {
+        console.error("Token not found. User must be authenticated.");
+        return;
+      }
+
+      // Faire une requête POST vers l'API /api/transactions
+      const response = await axios.post(
+        '/api/transactions',
+        {
+          instrument_id: instrument.id,
+          transaction_amount: montantTTC.toFixed(2), // Le montant TTC en tant que chaîne de caractères
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        console.log('Transaction successful:', response.data);
+        onConfirm(); // Appeler la fonction onConfirm si nécessaire pour fermer la modale ou rediriger
+        router.push('/dashboard'); // Rediriger vers /dashboard après succès
+     } else {
+        console.error('Transaction failed:', response.data);
+      }
+    } catch (error) {
+      console.error('Error confirming purchase:', error);
+    }
+  };
+
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        {/* Logo GLOOM */}
+        <div className="flex justify-center mb-4">
+          <h1 className="text-3xl font-bold text-green-600">GLOOM</h1>
+        </div>
+
+        <h2 className="text-xl font-bold mb-4 text-center">Confirmer l'achat</h2>
+
+        {/* Résumé du produit dans une petite card */}
+        <div className="flex items-center space-x-4 mb-6 bg-gray-100 p-4 rounded-lg">
+          <img
+            src={instrument.image}
+            alt={instrument.title}
+            className="w-16 h-16 object-cover rounded-lg border"
+          />
+          <div>
+            <h3 className="text-lg font-semibold">{instrument.title}</h3>
+            <p className="text-gray-500">{instrument.brand}</p>
+          </div>
+        </div>
+
+        {/* Informations détaillées sur le montant */}
+        <div className="mb-4">
+          <div className="flex justify-between">
+            <p>Montant HT:</p>
+            <p>{montantHT.toFixed(2)}€</p>
+          </div>
+          <div className="flex justify-between">
+            <p>Commission GLOOM (10%):</p>
+            <p>{commissionGloom.toFixed(2)}€</p>
+          </div>
+          <div className="flex justify-between font-bold">
+            <p>Montant TTC:</p>
+            <p>{montantTTC.toFixed(2)}€</p>
+          </div>
+        </div>
+
+        {/* Image et informations du vendeur */}
+        <div className="flex items-center space-x-4 mb-6">
+          <img
+            src={instrument.seller.image}
+            alt={instrument.seller.username}
+            className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
+          />
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">{instrument.seller.username}</h2>
+          </div>
+        </div>
+
+        <div className="text-center text-sm text-gray-500 mb-4">
+          Voulez-vous vraiment acheter cet instrument ?
+        </div>
+
+        {/* Boutons de confirmation et annulation */}
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={onClose}
+            className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600"
+          >
+            Annuler
+          </button>
+          <button
+             onClick={handleConfirmPurchase}
+             className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
+           >
+             Confirmer l'achat
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default function InstrumentDetails({ params }: { params: { instrumentId: string } }) {
   const [instrument, setInstrument] = useState<any>(null);
@@ -11,12 +135,12 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false); // Pour la gestion de la modale
 
   useEffect(() => {
-    // Vérifier s'il y a un token dans le sessionStorage
     const token = sessionStorage.getItem("authToken");
     if (token) {
-      setIsAuthenticated(true); // L'utilisateur est authentifié
+      setIsAuthenticated(true);
     }
   }, []);
 
@@ -27,7 +151,6 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
         if (!res.ok) {
           throw new Error(`Error fetching instrument with id ${params.instrumentId}`);
         }
-
         const data = await res.json();
         setInstrument(data);
         setLoading(false);
@@ -42,7 +165,6 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
   }, [params.instrumentId]);
 
   useEffect(() => {
-    // Assurez-vous que instrument et seller existent avant de faire l'appel à l'API pour les suggestions
     if (instrument && instrument.seller && instrument.seller.id) {
       const fetchSuggestions = async () => {
         try {
@@ -59,10 +181,9 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
           }
 
           const data = await res.json();
-          const filteredSuggestions = data.filter((suggestion: any) => suggestion.id !== instrument.id);
+          const filteredSuggestions = data.filter((suggestion: any) => suggestion.id !== instrument.id && suggestion.isSold !== true);
 
-        // Limiter à 3 suggestions
-        setSuggestions(filteredSuggestions.slice(0, 3));
+          setSuggestions(filteredSuggestions.slice(0, 3));
         } catch (error) {
           console.error("Error fetching instrument suggestions:", error);
           setError("Error fetching instrument suggestions");
@@ -73,7 +194,19 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
     }
   }, [instrument]);
 
-  console.log("test seller: ", suggestions)
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleConfirmPurchase = () => {
+    console.log("Transaction confirmée pour l'instrument:", instrument);
+    setModalOpen(false);
+    // Logique pour gérer la transaction
+  };
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -85,29 +218,28 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      {/* Header */}
       {isAuthenticated ? <HeaderLog /> : <Header />}
 
-      {/* Breadcrumb */}
       <div className="px-6 py-4 text-gray-600">
         <a href="/" className="text-gray-600 hover:text-gray-900">Accueil</a> / <span className="font-bold">{instrument.title}</span>
       </div>
 
-      {/* Content */}
       <div className="flex flex-col md:flex-row justify-center items-start p-6 space-y-8 md:space-y-0 md:space-x-8">
         {instrument && (
           <>
-            {/* Left side - Image with navigation arrows */}
-            <div className="w-[400px] h-[400px] overflow-hidden rounded-lg shadow-lg">
+            <div className="relative w-[400px] h-[400px] overflow-hidden rounded-lg shadow-lg">
               <img
                 src={instrument.image}
                 alt={instrument.title}
                 className="w-full h-full object-cover"
-            />
+              />
+              {instrument.isSold && (
+                <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  Vendu
+                </div>
+              )}
             </div>
-            {/* Right side - Instrument details */}
             <div className="w-full h-[400px] md:w-1/2 lg:w-2/3 bg-white p-8 rounded-lg shadow-lg">
-              {/* Seller Info */}
               <div className="flex items-center space-x-4 mb-6">
                 <img
                   src={instrument.seller.image}
@@ -116,33 +248,34 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
                 />
                 <div>
                   <h2 className="text-lg font-bold text-gray-800">{instrument.seller.username}</h2>
-                  {/* <div className="flex text-yellow-500">
-                    {Array(5).fill(0).map((_, index) => (
-                      // <FaStar key={index} className={index < instrument.seller.rating ? "text-yellow-500" : "text-gray-300"} />
-                    ))}
-                  </div> */}
                 </div>
               </div>
 
-              {/* Instrument Info */}
               <div className="space-y-4">
                 <span className="bg-black text-white px-3 py-1 rounded-full text-sm inline-block">Bon état</span>
                 <h1 className="text-4xl font-bold text-green-600">{instrument.title}</h1>
                 <p className="text-lg text-gray-500">{instrument.brand}</p>
                 <p className="text-gray-700">{instrument.description}</p>
               </div>
-
-              {/* Price and actions */}
               <div className="flex items-center justify-between mt-8">
-                <h2 className="text-4xl font-bold text-green-600">{instrument.price}€</h2>
+                <h2 className={`text-4xl font-bold ${instrument.isSold ? "text-gray-500" : "text-green-600"}`}>
+                  {instrument.price}€
+                </h2>
                 <div className="flex items-center space-x-4">
-                  <button className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition">
-                    {/* <FaHeart className="text-green-600" /> */}
+                  <button className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition" disabled={instrument.isSold}>
+                    {/* Bouton favori */}
                   </button>
-                  <button className="bg-white text-black py-2 px-6 rounded-full border border-gray-300 hover:bg-gray-100 transition">
+                  <button
+                    className={`py-2 px-6 rounded-full border transition ${instrument.isSold ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-black border-gray-300 hover:bg-gray-100"}`}
+                    disabled={instrument.isSold}
+                  >
                     Envoyer un message
                   </button>
-                  <button className="bg-green-600 text-white py-2 px-6 rounded-full hover:bg-green-700 transition">
+                  <button
+                    className={`py-2 px-6 rounded-full transition ${instrument.isSold ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-green-600 text-white hover:bg-green-700"}`}
+                    onClick={handleOpenModal}
+                    disabled={instrument.isSold}
+                  >
                     Acheter
                   </button>
                 </div>
@@ -164,7 +297,15 @@ export default function InstrumentDetails({ params }: { params: { instrumentId: 
           </div>
         </div>
       )}
+
+      {/* Modale de confirmation d'achat */}
+      {isModalOpen && (
+        <PurchaseModal
+          instrument={instrument}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmPurchase}
+        />
+      )}
     </div>
   );
 }
-

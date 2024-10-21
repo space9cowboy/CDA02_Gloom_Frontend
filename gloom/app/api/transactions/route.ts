@@ -1,14 +1,11 @@
-import { INSTRUMENTS_ROUTES } from "@/utils/api-routes"
+import { TRANS_ROUTES } from "@/utils/api-routes"
 export const dynamic = 'force-static'
-import axios, { all } from "axios"
-import { jwtVerify } from 'jose'; // Si tu utilises jose pour vérifier le token
-import { cookies } from 'next/headers';
 
 import { NextRequest, NextResponse } from "next/server";
 
  
 export async function GET() {
-  const res = await fetch( INSTRUMENTS_ROUTES.GET_ALL_INSTRUMENT, {
+  const res = await fetch( TRANS_ROUTES.GET_TRANSACTION, {
     headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -35,7 +32,7 @@ export async function POST(req: NextRequest, token: any) {
     }
 
     // Continuer la requête POST avec le token
-    const res = await fetch(INSTRUMENTS_ROUTES.POST_INSTRUMENT, {
+    const res = await fetch(TRANS_ROUTES.POST_TRANSACTION, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

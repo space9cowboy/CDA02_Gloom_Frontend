@@ -5,11 +5,18 @@ export const AUTH_ROUTES ={
    LOGIN:`${baseRoute}/auth/login`
 };
 
+export const TRANS_ROUTES ={
+   POST_TRANSACTION:`${baseRoute}/transactions`,
+   GET_TRANSACTION:`${baseRoute}/transactions`
+};
+
 export const INSTRUMENTS_ROUTES = {
    POST_INSTRUMENT:`${baseRoute}/instruments`,
    GET_ALL_INSTRUMENT:`${baseRoute}/instruments`,
    GET_INSTRUMENT_BY_CATEGORY:`${baseRoute}/instruments/category`,
    GET_INSTRUMENT_BY_SELLER:`${baseRoute}/instruments/seller`,
+   GET_INSTRUMENT_BY_BUYER:`${baseRoute}/instruments/buyer`,
+
 };
  
 

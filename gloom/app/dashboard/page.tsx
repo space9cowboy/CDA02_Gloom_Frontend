@@ -16,6 +16,7 @@ import { decodeJwt } from "jose";
 import { Sidebar, SidebarBody, SidebarLink, SidebarButton } from "@/components/ui/sidebar";
 import DashboardProfile from "./profile/page";
 import CreateAnnonce from "./create-annonce/page";
+import { InstrumentCard } from "@/components/InstrumentCard";
 
 
 interface UserPayload {
@@ -67,6 +68,9 @@ export default function Dashboard({ params }: { params: { username: string } }) 
   const [userInfo, setUserInfo] = useState<UserPayload | null>();
   const [userProfile, setUserProfile] = useState<any>(null);
 
+  const [instruments, setInstruments] = useState<any[]>([]);
+  const [instrumentsBuys, setInstrumentsBuys] = useState<any[]>([]);
+  const [instrumentsSelled, setInstrumentsSelled] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<string>("dashboard"); // État pour la page actuelle
@@ -125,9 +129,37 @@ export default function Dashboard({ params }: { params: { username: string } }) 
     fetchUserProfile();
   }, [userInfo?.username]);
 
-  const handlePageChange = (page: string) => {
-    setCurrentPage(page); // Mettre à jour la page actuelle
-  };
+  useEffect(() => {
+    // Assurez-vous que instrument et seller existent avant de faire l'appel à l'API pour les suggestions
+    if (userProfile && userProfile.id) {
+      const fetchInstrumentsSelled = async () => {
+        try {
+          const res = await fetch(`/api/instruments/seller/${userProfile.id}`, {
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          });
+
+          if (!res.ok) {
+            throw new Error(`Error fetching instruments for seller ${userProfile.id}`);
+          }
+
+          const data = await res.json();
+          const filteredInstrumentsSelled = data.filter((instrumentSelled: any) => instrumentSelled.isSold === true || instrumentSelled.isSold === 1);
+          setInstrumentsSelled(filteredInstrumentsSelled);
+        } catch (error) {
+          console.error("Error fetching instrument suggestions:", error);
+          setError("Error fetching instrument suggestions");
+        }
+      };
+
+      fetchInstrumentsSelled();
+    }
+  }, [userProfile]);
+
+  console.log("selled :", instrumentsSelled)
 
 
   useEffect(() => {
@@ -137,6 +169,72 @@ export default function Dashboard({ params }: { params: { username: string } }) 
       setIsAuthenticated(true); // L'utilisateur est authentifié
     }
   }, []);
+
+  useEffect(() => {
+    // Assurez-vous que instrument et seller existent avant de faire l'appel à l'API pour les suggestions
+    if (userProfile && userProfile.id) {
+      const fetchSuggestions = async () => {
+        try {
+          const res = await fetch(`/api/instruments/seller/${userProfile.id}`, {
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          });
+
+          if (!res.ok) {
+            throw new Error(`Error fetching instruments for seller ${userProfile.id}`);
+          }
+
+          const data = await res.json();
+         
+        // Limiter à 3 suggestions
+        setInstruments(data);
+        } catch (error) {
+          console.error("Error fetching instrument suggestions:", error);
+          setError("Error fetching instrument suggestions");
+        }
+      };
+
+      fetchSuggestions();
+    }
+  }, [userProfile]);
+
+  console.log("test dashboard", instruments)
+
+  useEffect(() => {
+    // Assurez-vous que instrument et seller existent avant de faire l'appel à l'API pour les suggestions
+    if (userProfile && userProfile.id) {
+      const fetchSuggestions = async () => {
+        try {
+          const res = await fetch(`/api/instruments/buyer/${userProfile.id}`, {
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          });
+
+          if (!res.ok) {
+            throw new Error(`Error fetching instruments for buyer ${userProfile.id}`);
+          }
+
+          const data = await res.json();
+         
+        // Limiter à 3 suggestions
+        setInstrumentsBuys(data);
+        } catch (error) {
+          console.error("Error fetching instrument suggestions:", error);
+          setError("Error fetching instrument suggestions");
+        }
+      };
+
+      fetchSuggestions();
+    }
+  }, [userProfile]);
+
+  console.log("test dashboard", instruments)
 
 
 
@@ -195,13 +293,75 @@ export default function Dashboard({ params }: { params: { username: string } }) 
         
       </Sidebar>
       {/* Afficher le composant en fonction de la page sélectionnée */}
-      <div className="flex flex-1">
-        <div>dashboard</div>
-        
       
-      </div>
+      <div className=" overflow-y-auto">
+  <div className="flex flex-col w-full p-6 space-y-8 min-h-screen ">
+    {/* Message au-dessus de la liste des instruments */}
+    <h2 className="text-xl font-bold text-center mb-4">
+      Voici vos instruments disponibles
+    </h2>
+    {/* Grille pour afficher les cartes avec des espacements */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {instruments.length > 0 ? (
+        instruments.map((instrument) => (
+          <InstrumentCard key={instrument.id} instrument={instrument} />
+        ))
+      ) : (
+        <p className="text-gray-500 text-center col-span-full">
+          Aucun instrument disponible pour l'instant.
+        </p>
+      )}
     </div>
-      
+  </div>
+
+  <div className="flex flex-col w-full p-6 space-y-8 min-h-16">
+    {/* Message au-dessus de la liste des instruments */}
+    <h2 className="text-xl font-bold text-center mb-4">
+      Historique des achats
+    </h2>
+    {/* Grille pour afficher les cartes avec des espacements */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {instrumentsBuys.length > 0 ? (
+        instrumentsBuys.map((instrument) => (
+          <InstrumentCard key={instrument.id} instrument={instrument} />
+        ))
+      ) : (
+        <p className="text-gray-500 text-center col-span-full">
+          Aucun instrument disponible pour l'instant.
+        </p>
+      )}
+    </div>
+    
+    
+    
+  </div>
+
+  <div className="flex flex-col w-full p-6 space-y-8 min-h-16">
+    {/* Message au-dessus de la liste des instruments */}
+    <h2 className="text-xl font-bold text-center mb-4">
+      Historique des ventes
+    </h2>
+    {/* Grille pour afficher les cartes avec des espacements */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {instrumentsSelled.length > 0 ? (
+        instrumentsSelled.map((instrument) => (
+          <InstrumentCard key={instrument.id} instrument={instrument} />
+        ))
+      ) : (
+        <p className="text-gray-500 text-center col-span-full">
+          Aucun instrument disponible pour l'instant.
+        </p>
+      )}
+    </div>
+    
+    
+    
+  </div>
+
+  
+  
+          </div>
+        </div>
       </div>
     );
   }

@@ -135,7 +135,6 @@ export default function CreateAnnonce({ params }: { params: { username: string }
     fetchCategories();
   }, []);
 
-  console.log(categories)
     // Gestion des changements dans les champs du formulaire
     const handleChangeFormData = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -143,30 +142,32 @@ export default function CreateAnnonce({ params }: { params: { username: string }
   
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-  
+    
       try {
-        // Récupérer le token d'authentification depuis sessionStorage
+        // Récupérer le token depuis sessionStorage (ou d'une autre source si disponible)
         const token = sessionStorage.getItem("authToken");
-  
+        console.log(token)
+    
         if (!token) {
           setError("Vous devez être connecté pour créer une annonce.");
           return;
         }
-  
+    
         // Envoyer la requête POST avec Axios
         const response = await axios.post(
           "/api/instruments", // Endpoint vers lequel envoyer les données
-          formData,
+          formData, // Les données du formulaire (formData)
           {
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Ajouter le token JWT dans le header
+              "Authorization": `Bearer ${token}`,
             },
           }
         );
-  
+    
+        // Vérification de la réponse
         if (response.status === 201) {
-          router.push("/dashboard"); // Redirection vers le dashboard après création
+          router.push("/dashboard"); // Redirection après succès
         } else {
           setError("Erreur lors de la création de l'annonce.");
         }

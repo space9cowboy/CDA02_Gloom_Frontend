@@ -94,10 +94,8 @@ export default function DashboardProfile({ params }: { params: { username: strin
       try {
         // Décoder le token pour extraire les informations
         const decoded = decodeJwt(token); // Utilise decodeJwt pour décoder le JWT
-
-        // Le JWT décodé contient les informations dans son payload
         const userPayload: UserPayload = {
-          username: decoded.username as string,
+        username: decoded.username as string,
         };
 
         setUserInfo(userPayload); // Mettre les infos utilisateur dans l'état
@@ -304,28 +302,40 @@ export default function DashboardProfile({ params }: { params: { username: strin
           )}
         </div>
 
-        {/* Reviews reçues */}
         <div className="mt-10">
-          <h2 className="text-2xl font-bold mb-4">Mes avis reçus</h2>
-          {userProfile?.reviewsReceive.length > 0 ? (
-            <ul className="space-y-4">
-              {userProfile.reviewsReceive.map((review: any) => (
-                <li
-                  key={review.id}
-                  className="bg-white shadow p-4 rounded-lg flex justify-between"
-                >
-                  <div>
-                    <p className="text-gray-700 font-semibold">{review.comment}</p>
-                    <p className="text-gray-500 text-sm">De : {review.reviewer}</p>
-                  </div>
-                  <div className="text-yellow-500 font-bold">{review.rating} ★</div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Aucun avis reçu pour le moment.</p>
-          )}
-        </div>
+            <h2 className="text-2xl font-bold mb-4">Mes avis reçus</h2>
+            {userProfile?.reviewsReceive.length > 0 ? (
+              <ul className="space-y-4">
+                {userProfile.reviewsReceive.map((review: Review) => (
+                  <li key={review.id} className="bg-white shadow p-4 rounded-lg flex justify-between">
+                    <div>
+                      <p className="text-gray-700 font-semibold">{review.comment}</p>
+                      <p className="text-gray-500 text-sm">Note : {review.rating} ★</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Aucun avis reçu pour le moment.</p>
+            )}
+          </div>
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-4">Mes avis envoyés</h2>
+            {userProfile?.reviewsSend.length > 0 ? (
+              <ul className="space-y-4">
+                {userProfile.reviewsSend.map((review: Review) => (
+                  <li key={review.id} className="bg-white shadow p-4 rounded-lg flex justify-between">
+                    <div>
+                      <p className="text-gray-700 font-semibold">{review.comment}</p>
+                      <p className="text-gray-500 text-sm">Note : {review.rating} ★</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Aucun avis envoyé pour le moment.</p>
+            )}
+          </div>
       </div>
     </div>
       

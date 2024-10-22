@@ -34,6 +34,7 @@ export const DELETE_INSTRUMENT_BY_ID = (id: number) => `${baseRoute}/instruments
 export const USERS_ROUTES = {
     GET_USERS:`${baseRoute}/user`,
     GET_PROFILE: `${baseRoute}/user/username`,
+    POST_REVIEW: `${baseRoute}/user/review`,
 };
 
 export const GET_USER_BY_ID = (id: number) => `${baseRoute}/user/`+ id;

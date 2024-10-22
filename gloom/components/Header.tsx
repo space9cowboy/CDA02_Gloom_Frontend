@@ -215,7 +215,7 @@ export function Header() {
           GLOOM
         </Link>
       <Navbar />
-      <div className="flex w-full max-w-[35rem] items-center space-x-2 relative">
+      <div className="hidden md:flex w-full max-w-[35rem] items-center space-x-2 relative">
         {/* Barre de recherche */}
         <Input
           type="Search"
@@ -248,6 +248,73 @@ export function Header() {
         <Button className="bg-[green] text-white rounded-2xl" type="button" onClick={() => router.push("/auth/signup")}>
           S'inscrire
         </Button>
+        <Button className="bg-black text-white rounded-2xl" type="button" onClick={() => router.push("/auth/login")}>
+          Ajouter une annonce
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function HeaderMobile() {
+  const router = useRouter();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [instruments, setInstruments] = useState<any[]>([]); // Stocker tous les instruments
+  const [filteredInstruments, setFilteredInstruments] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    axios
+      .get("/api/instruments")
+      .then((response) => {
+        if (Array.isArray(response.data.data)) {
+          setInstruments(response.data.data); // Stocker les instruments à partir de response.data.data
+        } else {
+          console.error("Les données reçues ne sont pas un tableau d'instruments.");
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors du chargement des instruments :", error);
+      });
+  }, []);
+  
+
+  useEffect(() => {
+    if (searchTerm.length > 0 && Array.isArray(instruments)) {
+      const filteredResults = instruments.filter((instrument) =>
+        instrument.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredInstruments(filteredResults);
+      setShowDropdown(true);
+    } else {
+      setFilteredInstruments([]);
+      setShowDropdown(false);
+    }
+  }, [searchTerm, instruments]);
+  
+
+
+  // Fonction pour gérer la redirection vers la page d'un instrument
+  const handleRedirectInstrument = (instrumentId: number) => {
+    router.push(`/instrument/${instrumentId}`);
+    setShowDropdown(false); // Masquer la liste déroulante après la sélection
+  };
+
+  const handleRedirect = () => {
+    router.push("/auth/signup"); // Redirection vers /dashboard
+  };
+
+
+
+  return (
+    <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
+      <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-teal-300 via-green-700 to-neutral-700 bg-clip-text text-transparent font-special">
+          GLOOM
+        </Link>
+     
+        
+      <div className="flex gap-4">
         <Button className="bg-black text-white rounded-2xl" type="button" onClick={() => router.push("/auth/login")}>
           Ajouter une annonce
         </Button>
@@ -372,6 +439,99 @@ export function Header() {
             Ajouter une annonce
           </Button>
           <Button
+            className="text-green-800 bg-white rounded-2xl hover:bg-green-800 hover:rounded-2xl hover:text-white"
+            type="button"
+            onClick={handleRedirect} // Ajouter l'événement onClick pour la redirection
+          >
+            {userInfo ? "Bonjour, " + userInfo.username : "Chargement..."}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+
+  export function HeaderMobileLog() {
+    const [userInfo, setUserInfo] = useState<UserPayload | null>(null);
+    const router = useRouter(); // Initialiser le router pour gérer les redirections
+  
+    useEffect(() => {
+      // Récupérer le token depuis le sessionStorage
+      const token = sessionStorage.getItem("authToken");
+  
+      if (token) {
+        try {
+          // Décoder le token pour extraire les informations
+          const decoded = decodeJwt(token); // Utilise decodeJwt pour décoder le JWT
+  
+          // Le JWT décodé contient les informations dans son payload
+          const userPayload: UserPayload = {
+            username: decoded.username as string,
+            email: decoded.email as string,
+          };
+  
+          setUserInfo(userPayload); // Mettre les infos utilisateur dans l'état
+        } catch (error) {
+          console.error("Erreur lors du décodage du token:", error);
+        }
+      }
+    }, []);
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [instruments, setInstruments] = useState<any[]>([]); // Stocker tous les instruments
+    const [filteredInstruments, setFilteredInstruments] = useState<any[]>([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+  
+    useEffect(() => {
+      axios
+        .get("/api/instruments")
+        .then((response) => {
+          if (Array.isArray(response.data.data)) {
+            setInstruments(response.data.data); // Stocker les instruments à partir de response.data.data
+          } else {
+            console.error("Les données reçues ne sont pas un tableau d'instruments.");
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur lors du chargement des instruments :", error);
+        });
+    }, []);
+    
+    
+    useEffect(() => {
+      if (searchTerm.length > 0 && Array.isArray(instruments)) {
+        const filteredResults = instruments.filter((instrument) =>
+          instrument.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredInstruments(filteredResults);
+        setShowDropdown(true);
+  
+      } else {
+        setFilteredInstruments([]);
+        setShowDropdown(false);
+      }
+    }, [searchTerm, instruments]);
+    
+  
+  // Fonction pour gérer la redirection vers la page d'un instrument
+  const handleRedirectInstrument = (instrumentId: number) => {
+    router.push(`/instrument/${instrumentId}`);
+    setShowDropdown(false); // Masquer la liste déroulante après la sélection
+  };
+
+  
+    // Fonction pour rediriger vers /dashboard
+    const handleRedirect = () => {
+      router.push("/dashboard"); // Redirection vers /dashboard
+    };
+
+    return (
+      <div className="sticky bg-white top-0 w-full h-16 flex items-center justify-between px-4 z-[999]">
+        <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-green-500 to-green-700 bg-clip-text text-transparent font-special">
+          GLOOM
+        </Link>
+        <div className="flex gap-4">
+        <Button
             className="text-green-800 bg-white rounded-2xl hover:bg-green-800 hover:rounded-2xl hover:text-white"
             type="button"
             onClick={handleRedirect} // Ajouter l'événement onClick pour la redirection

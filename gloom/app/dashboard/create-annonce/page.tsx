@@ -177,6 +177,14 @@ export default function CreateAnnonce({ params }: { params: { username: string }
       }
     };
 
+    useEffect(() => {
+      // Vérifier s'il y a un token dans le sessionStorage
+      const token = sessionStorage.getItem("authToken");
+      if (token) {
+        setIsAuthenticated(true); // L'utilisateur est authentifié
+      }
+    }, []);
+
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         {isAuthenticated ? <HeaderLog /> : <Header />}

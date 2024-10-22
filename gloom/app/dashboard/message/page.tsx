@@ -190,9 +190,21 @@ export default function DashboardMessage({ params }: { params: { username: strin
         
       </Sidebar>
       {/* Afficher le composant en fonction de la page sélectionnée */}
-      <div className="flex flex-1">
-        <div>Message</div>
+      <div className="flex items-center justify-center w-screen h-screen bg-gray-100">
+  <div className="bg-white p-10 rounded-lg shadow-lg text-center max-w-lg mx-auto">
+    <h1 className="text-4xl font-bold text-green-600 mb-4">Nouvelle fonctionnalité à venir !</h1>
+    <p className="text-gray-600 text-lg mb-6">Nous travaillons actuellement sur une nouvelle fonctionnalité qui sera bientôt disponible.</p>
+    <div className="relative w-56 h-56 mx-auto mb-4">
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400 to-blue-500 opacity-30 animate-pulse"></div>
+      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gradient-to-r from-green-400 to-blue-500 text-white text-2xl font-bold">
+        Prochainement
       </div>
+    </div>
+    <p className="text-gray-500">Restez connecté pour découvrir cette nouveauté !</p>
+  </div>
+</div>
+
+
     </div>
       
       </div>

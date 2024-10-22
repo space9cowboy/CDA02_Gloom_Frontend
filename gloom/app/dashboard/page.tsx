@@ -16,7 +16,9 @@ import { decodeJwt } from "jose";
 import { Sidebar, SidebarBody, SidebarLink, SidebarButton } from "@/components/ui/sidebar";
 import DashboardProfile from "./profile/page";
 import CreateAnnonce from "./create-annonce/page";
+import { InstrumentUpdateCard } from "@/components/InstrumentUpdateCard";
 import { InstrumentCard } from "@/components/InstrumentCard";
+
 
 
 interface UserPayload {
@@ -92,6 +94,7 @@ export default function Dashboard({ params }: { params: { username: string } }) 
         };
 
         setUserInfo(userPayload); // Mettre les infos utilisateur dans l'état
+        console.log("test userInfo :", userInfo)
         
       } catch (error) {
         console.error("Erreur lors du décodage du token:", error);
@@ -110,24 +113,39 @@ export default function Dashboard({ params }: { params: { username: string } }) 
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           },
         });
-
+  
         if (!res.ok) {
-          throw new Error(`Error fetching instrument with id ${params.username}`);
+          throw new Error(`Error fetching user profile with id ${params.username}`);
         }
-
+  
         const data = await res.json();
-        console.log(data);
+        console.log("userprofile data ", data);
         setUserProfile(data);
         setLoading(false);
+  
+        // Si l'utilisateur est un admin, récupérer tous les instruments
+        if (data.id === 4) {
+          const allInstrumentsRes = await fetch(`/api/instruments`, {
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          });
+  
+          const allInstrumentsData = await allInstrumentsRes.json();
+          setInstruments(allInstrumentsData.data); // Mettre à jour les instruments pour un admin
+        }
       } catch (error) {
-        console.error("Error fetching instrument data:", error);
-        setError("Error fetching instrument data");
+        console.error("Error fetching user profile:", error);
+        setError("Error fetching user profile");
         setLoading(false);
       }
     };
-
+  
     fetchUserProfile();
   }, [userInfo?.username]);
+  
 
   useEffect(() => {
     // Assurez-vous que instrument et seller existent avant de faire l'appel à l'API pour les suggestions
@@ -302,16 +320,19 @@ export default function Dashboard({ params }: { params: { username: string } }) 
     </h2>
     {/* Grille pour afficher les cartes avec des espacements */}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {instruments.length > 0 ? (
-        instruments.map((instrument) => (
-          <InstrumentCard key={instrument.id} instrument={instrument} />
-        ))
-      ) : (
-        <p className="text-gray-500 text-center col-span-full">
-          Aucun instrument disponible pour l'instant.
-        </p>
-      )}
-    </div>
+  {instruments.length > 0 ? (
+    instruments.map((instrument) => (
+      <InstrumentUpdateCard
+        key={instrument.id} // Ajout de la clé unique ici
+        instrument={instrument}
+      />
+    ))
+  ) : (
+    <p className="text-gray-500 text-center col-span-full">
+      Aucun instrument disponible pour l'instant.
+    </p>
+  )}
+</div>
   </div>
 
   <div className="flex flex-col w-full p-6 space-y-8 min-h-16">

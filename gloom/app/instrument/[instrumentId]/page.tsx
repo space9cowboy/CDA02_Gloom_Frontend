@@ -15,6 +15,12 @@ const PurchaseModal = ({ instrument, onClose, onConfirm }: any) => {
   const montantHT = instrument.price / (1 + commissionRate); // Prix HT
   const commissionGloom = instrument.price - montantHT; // Commission
   const montantTTC = instrument.price; // Prix TTC (correspond au prix de l'instrument)
+
+  // État pour la note et l'avis
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState<string>("");
+
+  // Gérer la soumission de la transaction et de l'avis
   const handleConfirmPurchase = async () => {
     try {
       // Récupérer le token d'authentification depuis les cookies ou sessionStorage
@@ -25,33 +31,54 @@ const PurchaseModal = ({ instrument, onClose, onConfirm }: any) => {
         return;
       }
 
-      // Faire une requête POST vers l'API /api/transactions
-      const response = await axios.post(
+      // Faire une requête POST vers l'API /api/transactions pour la transaction
+      const transactionResponse = await axios.post(
         '/api/transactions',
         {
           instrument_id: instrument.id,
-          transaction_amount: montantTTC.toFixed(2), // Le montant TTC en tant que chaîne de caractères
+          transaction_amount: montantTTC.toFixed(2), // Le montant TTC
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
       );
 
-      if (response.status === 201) {
-        console.log('Transaction successful:', response.data);
-        onConfirm(); // Appeler la fonction onConfirm si nécessaire pour fermer la modale ou rediriger
+      if (transactionResponse.status === 201) {
+        console.log('Transaction successful:', transactionResponse.data);
+
+        // Une fois la transaction réussie, soumettre un avis sur le vendeur
+        const reviewResponse = await axios.post(
+          `/api/user/review/${instrument.seller.id}`, // POST vers l'API d'avis
+          {
+            rating, // Note donnée
+            comment, // Commentaire de l'utilisateur
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (reviewResponse.status === 201) {
+          console.log('Review submitted:', reviewResponse.data);
+        } else {
+          console.error('Failed to submit review:', reviewResponse.data);
+        }
+
+        onConfirm(); // Appeler la fonction onConfirm pour fermer la modale
         router.push('/dashboard'); // Rediriger vers /dashboard après succès
-     } else {
-        console.error('Transaction failed:', response.data);
+      } else {
+        console.error('Transaction failed:', transactionResponse.data);
       }
     } catch (error) {
-      console.error('Error confirming purchase:', error);
+      console.error('Error confirming purchase or submitting review:', error);
     }
   };
-
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -92,6 +119,31 @@ const PurchaseModal = ({ instrument, onClose, onConfirm }: any) => {
           </div>
         </div>
 
+        {/* Zone de notation et d'avis */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Note (sur 5):
+          </label>
+          <input
+            type="number"
+            max={5}
+            min={1}
+            value={rating}
+            onChange={(e) => setRating(Number(e.target.value))}
+            className="w-full p-2 border rounded-lg"
+          />
+
+          <label className="block mt-4 text-sm font-medium text-gray-700">
+            Avis:
+          </label>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="w-full p-2 border rounded-lg"
+            placeholder="Écrivez votre avis ici..."
+          />
+        </div>
+
         {/* Image et informations du vendeur */}
         <div className="flex items-center space-x-4 mb-6">
           <img
@@ -117,16 +169,17 @@ const PurchaseModal = ({ instrument, onClose, onConfirm }: any) => {
             Annuler
           </button>
           <button
-             onClick={handleConfirmPurchase}
-             className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
-           >
-             Confirmer l'achat
+            onClick={handleConfirmPurchase}
+            className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
+          >
+            Confirmer l'achat
           </button>
         </div>
       </div>
     </div>
   );
 };
+
 
 
 export default function InstrumentDetails({ params }: { params: { instrumentId: string } }) {

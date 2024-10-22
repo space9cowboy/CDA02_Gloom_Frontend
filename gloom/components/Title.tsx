@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { TypewriterEffectSmooth } from "./ui/typewriter-effect";
-import { useRouter } from "next/navigation"; //
+import { useRouter } from "next/navigation";
+import useIsLargeScreen from "@/components/useIsLargeScreen"; // Importer le hook
 
 export function Title() {
   const [backgroundImage, setBackgroundImage] = useState<string>("");
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Ajout de l'état d'authentification
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const { isLargeScreen } = useIsLargeScreen(); // Utiliser le hook pour détecter la taille de l'écran
 
   const images = [
     "https://images.unsplash.com/photo-1684915521123-efdc534ee444?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -19,61 +21,65 @@ export function Title() {
     "https://images.unsplash.com/photo-1681683967405-7efef2cd810c?q=80&w=2013&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   ];
 
-  // Fonction pour sélectionner une image aléatoire
   const getRandomImage = () => {
     return images[Math.floor(Math.random() * images.length)];
   };
 
   useEffect(() => {
-    // Vérification de l'authentification (si le token est présent dans sessionStorage)
     const token = sessionStorage.getItem("authToken");
     if (token) {
       setIsAuthenticated(true);
     }
 
-    // Initialisation avec une image aléatoire
     setBackgroundImage(getRandomImage());
 
-    // Changement d'image toutes les 5 secondes
     const interval = setInterval(() => {
       setBackgroundImage(getRandomImage());
-    }, 5000); // Change toutes les 5 secondes
+    }, 5000);
 
-    // Nettoyage de l'intervalle
     return () => clearInterval(interval);
   }, []);
 
-  const words = [
-    {
-      text: "Bienvenue",
-      className: "text-neutral-50 dark:text-neutral-50",
-    },
-    {
-      text: "sur",
-      className: "text-neutral-50 dark:text-neutral-50",
-    },
-    {
-      text: "Gloom 𝄞 -",
-      className: "text-lime-600 dark:text-blue-500",
-    },
-    {
-      text: "Achetez 💵, vendez 🫱🏼‍🫲🏾, jouez. 🎸",
-      className: "text-lime-700 dark:text-blue-500",
-    },
-  ];
+  // Changer les words en fonction de la taille de l'écran
+  const words = isLargeScreen
+    ? [
+        {
+          text: "Bienvenue sur Gloom 𝄞 -",
+          className: "text-neutral-50 dark:text-neutral-50",
+        },
+        {
+          text: "Achetez 💵, vendez 🫱🏼‍🫲🏾, jouez 🎸.",
+          className: "text-lime-700 dark:text-blue-500",
+        },
+        {
+          text: "Profitez de la musique en grand 🎶.",
+          className: "text-lime-700 dark:text-blue-500",
+        },
+      ]
+      : [
+        {
+          text: "Bienvenue",
+          className: "text-neutral-50 dark:text-neutral-50 text-3xl",
+        },
+        {
+          text: "sur Gloom 𝄞",
+          className: "text-lime-600 dark:text-blue-500 text-3xl",
+        },
+      ];
   const router = useRouter();
 
   const handleRedirectSignup = () => {
-    router.push("/auth/signup"); // Redirection vers /dashboard
+    router.push("/auth/signup");
   };
   const handleRedirectLogin = () => {
-    router.push("/auth/login"); // Redirection vers /dashboard
+    router.push("/auth/login");
   };
+
   return (
-    <div className="relative w-full h-[60vh]">
+    <div className="relative w-full h-[60vh] sm:h-[50vh] md:h-[60vh] lg:h-[80vh]">
       {/* Image de fond */}
       <div
-        className="absolute inset-0 bg-cover bg-center "
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       ></div>
 
@@ -81,17 +87,32 @@ export function Title() {
       <div className="absolute inset-0 bg-black opacity-70"></div>
 
       {/* Contenu */}
-      <div className="relative flex flex-col items-center justify-center h-full z-10 ">
+      <div className="relative flex flex-col items-center justify-center h-full z-10 px-4 md:px-8 lg:px-16 text-center">
         <TypewriterEffectSmooth words={words} />
-        {/* Afficher les boutons uniquement si l'utilisateur n'est pas authentifié */}
+
         {!isAuthenticated && (
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4 mt-6">
-            <button className="w-40 h-10 rounded-xl bg-black border dark:border-white text-white text-sm" onClick={handleRedirectSignup}>
-              S'inscrire
-            </button>
-            <button className="w-40 h-10 rounded-xl bg-white text-black border border-black text-sm" onClick={handleRedirectLogin}>
-              Se connecter
-            </button>
+          <div className="mt-6">
+            {isLargeScreen ? (
+              // Afficher cette version sur les grands écrans
+              <div className="flex space-x-4">
+                <button className="w-60 h-14 text-lg bg-black border dark:border-white text-white rounded-xl" onClick={handleRedirectSignup}>
+                  S'inscrire
+                </button>
+                <button className="w-60 h-14 text-lg bg-white text-black border border-black rounded-xl" onClick={handleRedirectLogin}>
+                  Se connecter
+                </button>
+              </div>
+            ) : (
+              // Afficher cette version sur les petits écrans
+              <div className="flex flex-col space-y-4">
+                <button className="w-[150px] h-12 text-lg bg-black border dark:border-white text-white rounded-xl" onClick={handleRedirectSignup}>
+                  S'inscrire
+                </button>
+                <button className="w-full h-12 text-lg bg-white text-black border border-black rounded-xl" onClick={handleRedirectLogin}>
+                  Se connecter
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
